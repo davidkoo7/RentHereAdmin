@@ -8,12 +8,13 @@ using System.Configuration;
 
 public class MemberDB
 {
-
+    // gets the connection value from "myConnectionString" in web.config to connect to database
     static SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString);
 
+    // method to check if login is allowed based on whether input credentials exists in database
     public static bool isPermittedLogin(string email, string password)
     {
-        bool permittedLogin = false;
+        bool permittedLogin = false; 
         try
         {
             SqlCommand command = new SqlCommand("SELECT * FROM Member WHERE email = @email and password = @password");
@@ -22,8 +23,8 @@ public class MemberDB
             command.Parameters.AddWithValue("@password", password);
             connection.Open();
             SqlDataReader reader = command.ExecuteReader();
-            if (reader.Read())
-                permittedLogin = true;
+            if (reader.Read()) // credentials exists in database and corresponds
+                permittedLogin = true;  //allow login
 
             reader.Close();
         }
@@ -34,6 +35,7 @@ public class MemberDB
         return permittedLogin;
     }
 
+    // method to get memeber by email from the database
     public static Member getMemberbyEmail(string email)
     {
         Member m = new Member();
@@ -56,6 +58,7 @@ public class MemberDB
         return m;
     }
 
+    // method to get member by memberID from the database 
     public static Member getMemberbyID(string memberID)
     {
         Member m = new Member();
@@ -80,7 +83,7 @@ public class MemberDB
         return m;
     }
 
-
+    // method to add member into database, takes in parameter of type Member
     public static int addMember(Member m)
     {
         try
@@ -122,6 +125,7 @@ public class MemberDB
         return -1;
     }
 
+    // method to inlcude ic verification request for member into database
     public static int updateICVerification(string memberID, string identificationNumber, string identificationPicture)
     {
         try
@@ -152,6 +156,7 @@ public class MemberDB
         return -1;
     }
 
+    // method to change profile picture of member 
     public static int updateProfilePicture(string memberID, string profilePic)
     {
         try
@@ -173,6 +178,7 @@ public class MemberDB
         return -1;
     }
 
+    // method to get all members that have submitted ic verification request from the database
     public static List<Member> getAllMembertoVerify()
     {
         List<Member> memberList = new List<Member>();
@@ -200,6 +206,7 @@ public class MemberDB
         return memberList;
     }
 
+    // method to accept ic verification submitted by member
     public static int confirmICVerification(string memberID, DateTime dateVerified)
     {
         try
@@ -219,6 +226,7 @@ public class MemberDB
         return -1;
     }
 
+    // method to reject ic verification submited by member
     public static int rejectICVerification(string memberID )
     {
         try
@@ -238,6 +246,7 @@ public class MemberDB
         return -1;
     }
 
+    // method to update member details in the database 
     public static int updateMemberDetail(Member member)
     {
         try
@@ -265,6 +274,7 @@ public class MemberDB
         return -1;
     }
 
+    // method to get all members from the database 
     public static List<Member> getAllMember()
     {
         List<Member> memberList = new List<Member>();
@@ -292,7 +302,8 @@ public class MemberDB
         return memberList;
     }
 
-
+    // method to read the column values in the database (through the referenced reader) and assign it to the correct properties of the referenced Member object 
+    // allows for easier editing of column names if needed, used only for methods with select statments regarding Member
     private static void readAMember(ref Member m, ref SqlDataReader reader)
     {
         m.MemberID = reader["memberID"].ToString();

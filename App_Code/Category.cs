@@ -6,10 +6,12 @@ using System.Web;
 
 public class Category
 {
+    // Category fields
     private string name;
     private string description;
     private string type;
 
+    // constructor for Category
     public Category(string name, string description, string type)
     {
         this.name = name;
@@ -17,8 +19,10 @@ public class Category
         this.type = type;
     }
 
-    public Category() { /*empty constructor*/ }
+    // empty Category constructor
+    public Category() { }
 
+    // properties of Category
     public string Name
     {
         get { return name; }

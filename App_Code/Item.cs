@@ -6,6 +6,7 @@ using System.Web;
 
 public class Item
 {
+    // Item fields 
     private string itemID;
     private string name;
     private string description;
@@ -21,6 +22,7 @@ public class Item
     private Member renter;
     private Category categoryName;
 
+    // constructor for Item
     public Item(string itemID, string name, string description, DateTime postedDate, decimal deposit,
         decimal pricePerDay, decimal pricePerWeek, decimal pricePerMonth, string img1, string img2, string img3, string img4, Member renter, Category categoryName)
     {
@@ -40,8 +42,10 @@ public class Item
         this.categoryName = categoryName;
     }
 
+    // empty Item constructor 
     public Item() { }
 
+    // properties of Item
     public string ItemID { get { return itemID; } set { itemID = value; } }
     public string Name { get { return name; } set { name = value; } }
     public string Description { get { return description; } set { description = value; } }

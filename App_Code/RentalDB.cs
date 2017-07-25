@@ -5,13 +5,12 @@ using System.Web;
 using System.Data.SqlClient;
 using System.Configuration;
 
-/// <summary>
-/// Summary description for RentalDB
-/// </summary>
 public class RentalDB
 {
+    // gets the connection value from "myConnectionString" in web.config to connect to database
     public static SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString);
 
+    // method to get all rentals from the database
     public static List<Rental> getAllRental()
     {
         List<Rental> rentalList = new List<Rental>();
@@ -38,6 +37,7 @@ public class RentalDB
         return rentalList;
     }
 
+    // method to get all rentals by status from the database
     public static List<Rental> getAllRentalForStatus(string status)
     {
         List<Rental> rentalList = new List<Rental>();
@@ -65,6 +65,7 @@ public class RentalDB
         return rentalList;
     }
 
+    // method to get all rentals by member from the database, takes in parameter of type Member
     public static List<Rental> getRentalforMember(Member member)
     {
         List<Rental> rentalList = new List<Rental>();
@@ -94,7 +95,7 @@ public class RentalDB
         return rentalList;
     }
 
-    
+    // method to get all rentals by item from the database
     public static List<Rental> getRentalofItem(string itemID)
     {
         List<Rental> rentList = new List<Rental>();
@@ -123,6 +124,7 @@ public class RentalDB
         return rentList;
     }
 
+    // method to get rentee from rental record from the database
     public static Member getRenteeforRental(string rentalID)
     {
         Member m = new Member();
@@ -147,6 +149,7 @@ public class RentalDB
         return m;
     }
 
+    // method to get rental by rentalIS from the database
     public static Rental getRentalbyID(string rentalID)
     {
         Rental rent = new Rental();
@@ -173,6 +176,7 @@ public class RentalDB
         return rent;
     }
 
+    // methof to change sttus of rental in the database
     public static int updateRentStatus(string rentalID, string status)
     {
         try
@@ -193,6 +197,8 @@ public class RentalDB
         return -1;
     }
 
+    // method to read the column values in the database (through the referenced reader) and assign it to the correct properties of the referenced Rental object 
+    // allows for easier editing of column names if needed, used only for methods with select statments regarding Rental
     private static void readARental(ref Rental rent, ref SqlDataReader reader)
     {
         rent.RentalID = Convert.ToString(reader["rentalID"]);
