@@ -9,8 +9,10 @@ public partial class ItemList : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        // displays a full list of all the items in the database
 
-        if (Session["admin"] == null)
+        // check if user is logged in 
+        if (Session["admin"] == null) // if user is not logged in, redirect to login page
         {
             Response.Redirect("Login.aspx");
             return;

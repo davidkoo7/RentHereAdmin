@@ -9,7 +9,8 @@ public partial class Login : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (StaffDB.isPermittedLogin(tbxEmail.Value, tbxPassword.Value))
+        // checks if user-entered credentials exists in database
+        if (StaffDB.isPermittedLogin(tbxEmail.Value, tbxPassword.Value)) // if exists in database, redirect to default page
         {
             Session["admin"] = tbxEmail.Value;
             Response.Redirect("Default.aspx");

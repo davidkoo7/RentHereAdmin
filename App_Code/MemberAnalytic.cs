@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-/// <summary>
-/// Summary description for MemberFeedback
-/// </summary>
+
 public class MemberAnalytic
 {
+    // propertise of MemberAnalytic
     public Member Member { get; set; }
     public int NoOfPositiveFeedback { get; set; }
     public int NoOfNeutralFeedback { get; set; }
@@ -15,8 +14,10 @@ public class MemberAnalytic
     public int NoOfRentalAsRentee { get; set; }
     public int NoOfRentalAsRenter { get; set; }
 
-    public MemberAnalytic() { /* empty constructor */ }
+    // empty MemberAnalytic constructor
+    public MemberAnalytic() { }
    
+    // constructor for MemberAnalytic
     public MemberAnalytic(Member mem, int noOfPositiveFeedback, int noOfNeutralFeedback, int noOfNegativeFeedback, int noOfRentalAsRentee, int noOfRentalAsRenter)
     {
         Member = mem;

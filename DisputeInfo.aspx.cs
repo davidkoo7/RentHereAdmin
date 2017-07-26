@@ -9,17 +9,21 @@ public partial class DisputeInfo : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (Session["admin"] == null)
+        // user has selected a dispute to be viewed. this page displays messages pertaining the dispute selected
+
+        //  checks if user is logged in
+        if (Session["admin"] == null) // if not logged in, redirect to login page
         {
             Response.Redirect("Login.aspx");
             return;
         }
 
-        if (Request.QueryString["disputeID"] == null)
+        //  check if a dispute is selected
+        if (Request.QueryString["disputeID"] == null) // if nothing is selected, redirect back to DisputeList page
         {
             Response.Redirect("~/DisputeList.aspx");
         }
-        else
+        else // if a dispute is selected, display the correct messages for the dispute selected
         {
             List<MessageDispute> disputeMsg = MessageDisputeDB.getMsgforDispute(Request.QueryString["disputeID"].ToString());
             rptMessages.DataSource = disputeMsg;
@@ -38,16 +42,20 @@ public partial class DisputeInfo : System.Web.UI.Page
 
     }
 
+    // admin posts message with regards to a dispute
     protected void btnSend_Click(object sender, EventArgs e)
     {
-        if (txtMsg.InnerText.Length > 255)
+        // check if the length of the message 
+        if (txtMsg.InnerText.Length > 255)  // if the length of the message is more than 255, display alert
         {
             ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "alertMessage", "alert('Your message cannot exceed 255 characters!')", true);
             return;
         }
-
-        Dispute dis = DisputeDB.getDisputeybyID(Request.QueryString["disputeID"].ToString());
-        if (dis.Status == "Resolved")
+        
+        // gets the dispute being selected
+        Dispute dis = DisputeDB.getDisputeybyID(Request.QueryString["disputeID"].ToString()); 
+        // checks the status of the dispute
+        if (dis.Status == "Resolved") // if status of dispute is resolved, display alert, deny posting of message
         {
             ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "alertMessage", "alert('Your page has expired since your disputer has closed the case')", true);
             rptMessages.DataBind();
@@ -55,9 +63,10 @@ public partial class DisputeInfo : System.Web.UI.Page
             txtMsg.InnerText = "";
             return;
         }
-        if (txtMsg.InnerText != "")
+        // checks if there is message typed
+        if (txtMsg.InnerText != "") // if there is message, post message
         {
-            submitMessage(txtMsg.InnerText, dis);
+            submitMessage(txtMsg.InnerText, dis); 
 
             txtMsg.InnerText = "";
 
@@ -67,6 +76,7 @@ public partial class DisputeInfo : System.Web.UI.Page
         Response.Redirect(Request.RawUrl);
     }
 
+    // gets messages regarding dispute selected 
     protected string retrieveMessage(string memberID, string staffID, string reply, string datePosted)
     {
         if (memberID != "")
@@ -98,6 +108,7 @@ public partial class DisputeInfo : System.Web.UI.Page
 
     }
 
+    // posts message and updates database of the message posted
     private void submitMessage(string message, Dispute dis)
     {
         MessageDispute msgDis = new MessageDispute();
@@ -111,6 +122,7 @@ public partial class DisputeInfo : System.Web.UI.Page
         MessageDisputeDB.addMsgDispute(msgDis);
     }
 
+    // enables or disables message send button and message box
     private void setChatControls(bool isEnabled)
     {
         btnSend.Enabled = isEnabled;

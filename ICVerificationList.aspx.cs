@@ -11,8 +11,8 @@ public partial class ICVerificationList : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-
-        if (Session["admin"] == null)
+        // checks if user is logged in 
+        if (Session["admin"] == null) // if user is not logged in, redirect to login page
         {
             Response.Redirect("Login.aspx");
             return;

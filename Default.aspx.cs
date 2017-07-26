@@ -9,8 +9,8 @@ public partial class _Default : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-
-        if (Session["admin"] == null)
+        // checks if user is logged in
+        if (Session["admin"] == null) // if not logged in, redirect to login page 
         {
             Response.Redirect("Login.aspx");
             return;

@@ -9,18 +9,21 @@ public partial class Messages : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        // user has selected a message inbox to be viewed. this page displays messages pertaining the message inbox
 
-        if (Session["admin"] == null)
+        // checks if user is logged in
+        if (Session["admin"] == null) // if user is not logged in, redirect to login page
         {
             Response.Redirect("Login.aspx");
             return;
         }
 
-        if (Request.QueryString["memberInboxID"] == null)
+        // checks if a message inbox is selected
+        if (Request.QueryString["memberInboxID"] == null) // if nothing is selected, redirect back to messageList page
         {
             Response.Redirect("~/messageList.aspx");
         }
-        else
+        else // if message inbox is selected, display messages pertaining to that message inbox
         {
 
             List<MemberMessage> memberMessageList = MemberMessageDB.getMsgforMember(Request.QueryString["memberInboxID"].ToString());
@@ -41,6 +44,7 @@ public partial class Messages : System.Web.UI.Page
 
     }
 
+    // gets message regarding inbox 
     protected string retrieveMessage(string senderID, string reply, string datePosted)
     {
         if (MemberDB.getMemberbyID(senderID).Email == MemberInboxDB.getMemberInboxID(Request.QueryString["memberInboxID"].ToString()).Sender.Email)

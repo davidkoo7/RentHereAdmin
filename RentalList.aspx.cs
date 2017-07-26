@@ -9,13 +9,16 @@ public partial class RentalList : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        //  displays a full list of all rentals from the database to be reviewed
 
-        if (Session["admin"] == null)
+        // checks if user is logged on
+        if (Session["admin"] == null) // if user is not logged, redirect to login page
         {
             Response.Redirect("Login.aspx");
             return;
         }
 
+        // allows user to filter list by rental status
         List<Rental> rentalList = RentalDB.getAllRental();
         List<Rental> rentalListOngoing = RentalDB.getAllRentalForStatus("On-going");
         List<Rental> rentalListEnded = RentalDB.getAllRentalForStatus("Ended & Returned");

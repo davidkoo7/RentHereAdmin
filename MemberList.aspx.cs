@@ -9,8 +9,10 @@ public partial class MemberList : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+        // displays a full list of all member from the database
 
-        if (Session["admin"] == null)
+        // checks if user is logged in
+        if (Session["admin"] == null) // if user is not logged in, redirect to login page
         {
             Response.Redirect("Login.aspx");
             return;
@@ -24,6 +26,7 @@ public partial class MemberList : System.Web.UI.Page
 
     protected void rptMemberInfo_ItemCommand(object source, RepeaterCommandEventArgs e)
     {
+
         Label item = (Label)e.Item.FindControl("lblmemberID");
         Label item2 = (Label)e.Item.FindControl("lblName");
 

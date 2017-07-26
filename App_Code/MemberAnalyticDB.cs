@@ -5,13 +5,13 @@ using System.Web;
 using System.Data.SqlClient;
 using System.Configuration;
 
-/// <summary>
-/// Summary description for MemberAnalyticDB
-/// </summary>
+
 public class MemberAnalyticDB
 {
+    // gets the connection value from "myConnectionString" in web.config to connect to database
     private static SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString);
 
+    // gets sum of ratings by member from the database
     public static List<MemberAnalytic> getMemberFeedbackAnalytic()
     {
         List<MemberAnalytic> feedList = new List<MemberAnalytic>();
@@ -46,6 +46,7 @@ public class MemberAnalyticDB
         return feedList;
     }
 
+    // gets top 10 most used tag from the database
     public static List<string> getTop10MostUsedTags()
     {
         List<string> tagNameList = new List<string>();
