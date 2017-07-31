@@ -35,6 +35,32 @@ public class MemberDB
         return permittedLogin;
     }
 
+    public static int updateMemberStatus(string memberID, string status)
+    {
+        try
+        {
+            SqlCommand command = new SqlCommand("UPDATE Member SET status=@status WHERE memberID = @memberID");
+            command.Parameters.AddWithValue("@status", status);
+            command.Parameters.AddWithValue("@memberID", memberID);
+
+            command.Connection = connection;
+            connection.Open();
+
+            if (command.ExecuteNonQuery() > 0)
+            {
+                //command.CommandText = "SELECT @@identity";
+                //int disputeID = Convert.ToInt32(command.ExecuteScalar());
+
+                return 1;
+            }
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return -1;
+    }
+
     // method to get memeber by email from the database
     public static Member getMemberbyEmail(string email)
     {

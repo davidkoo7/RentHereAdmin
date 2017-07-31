@@ -8,63 +8,63 @@ using System.Configuration;
 public class RentalDB
 {
     // gets the connection value from "myConnectionString" in web.config to connect to database
-    public static SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString);
+    private static SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString);
 
-    // method to get all rentals from the database
     public static List<Rental> getAllRental()
     {
-        List<Rental> rentalList = new List<Rental>();
+        List<Rental> rentList = new List<Rental>();
         try
         {
             SqlCommand command = new SqlCommand("SELECT * FROM Rental");
             command.Connection = connection;
             connection.Open();
+
             SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
             {
-                Rental i = new Rental();
-                readARental(ref i, ref reader);
-
-                rentalList.Add(i);
+                Rental rent = new Rental();
+                readARental(ref rent, ref reader);
+                rentList.Add(rent);
             }
+
             reader.Close();
         }
         finally
         {
             connection.Close();
         }
-        return rentalList;
+        return rentList;
     }
 
-    // method to get all rentals by status from the database
     public static List<Rental> getAllRentalForStatus(string status)
     {
-        List<Rental> rentalList = new List<Rental>();
+        List<Rental> rentList = new List<Rental>();
         try
         {
             SqlCommand command = new SqlCommand("SELECT * FROM Rental WHERE status = @status");
+            command.Parameters.Clear();
             command.Parameters.AddWithValue("@status", status);
             command.Connection = connection;
             connection.Open();
+
             SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
             {
-                Rental i = new Rental();
-                readARental(ref i, ref reader);
-
-                rentalList.Add(i);
+                Rental rent = new Rental();
+                readARental(ref rent, ref reader);
+                rentList.Add(rent);
             }
+
             reader.Close();
         }
         finally
         {
             connection.Close();
         }
-        return rentalList;
+        return rentList;
     }
-
     // method to get all rentals by member from the database, takes in parameter of type Member
     public static List<Rental> getRentalforMember(Member member)
     {
@@ -96,16 +96,28 @@ public class RentalDB
     }
 
     // method to get all rentals by item from the database
-    public static List<Rental> getRentalofItem(string itemID)
+    public static List<Rental> getRentalofItem(string itemID, string status)
     {
         List<Rental> rentList = new List<Rental>();
+
         try
         {
-            SqlCommand command = new SqlCommand("SELECT * FROM Rental WHERE itemID = @itemID");
-            command.Parameters.Clear();
-            command.Parameters.AddWithValue("@itemID", itemID);
-            command.Connection = connection;
+            string sqlcommand = "SELECT * FROM Rental WHERE itemID = @itemID ";
 
+            if (status != null)
+                sqlcommand += " and status=@status ";
+
+            sqlcommand += "ORDER BY startDate desc";
+
+            SqlCommand command = new SqlCommand(sqlcommand);
+
+            command.Parameters.AddWithValue("@itemID", itemID);
+
+            if (status != null)
+                command.Parameters.AddWithValue("@status", status);
+
+            command.Connection = connection;
+            connection.Open();
             SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())
@@ -122,6 +134,54 @@ public class RentalDB
             connection.Close();
         }
         return rentList;
+    }
+
+    // method to insert rental into the database, takes in parameter of type Rental
+    public static int addRental(Rental rent)
+    {
+        try
+        {
+            SqlCommand command = new SqlCommand("INSERT INTO Rental (pickUpLocation, pickUpTime, returnLocation, returnTime, rentalFee, unit, deposit, dateCreated, startDate, endDate, status, paymentReleaseCode, depositRetrievalCode, itemID, paymentID, renteeID)" +
+               "VALUES (@pickUpLocation, @pickUpTime, @returnLocation, @returnTime, @rentalFee, @unit, @deposit, @dateCreated, @startDate, @endDate, @status, @paymentReleaseCode, @depositRetrievalCode, @itemID, @paymentID, @renteeID)");
+            command.Parameters.AddWithValue("@pickUpLocation", rent.PickUpLocation);
+            command.Parameters.AddWithValue("@pickUpTime", rent.PickUpTime);
+
+            if (rent.ReturnLocation != null)
+                command.Parameters.AddWithValue("@returnLocation", rent.ReturnLocation);
+            else
+                command.Parameters.AddWithValue("@returnLocation", DBNull.Value);
+
+            if (rent.ReturnTime != null)
+                command.Parameters.AddWithValue("@returnTime", rent.ReturnTime);
+            else
+                command.Parameters.AddWithValue("@returnTime", DBNull.Value);
+
+            command.Parameters.AddWithValue("@rentalFee", rent.RentalFee);
+            command.Parameters.AddWithValue("@unit", rent.Unit);
+            command.Parameters.AddWithValue("@deposit", rent.Deposit);
+            command.Parameters.AddWithValue("@dateCreated", rent.DateCreated);
+            command.Parameters.AddWithValue("@startDate", rent.StartDate);
+            command.Parameters.AddWithValue("@endDate", rent.EndDate);
+            command.Parameters.AddWithValue("@status", rent.Status);
+            command.Parameters.AddWithValue("@paymentReleaseCode", rent.PaymentReleaseCode);
+            command.Parameters.AddWithValue("@depositRetrievalCode", rent.DepositRetrievalCode);
+            command.Parameters.AddWithValue("@itemID", rent.Item.ItemID);
+            command.Parameters.AddWithValue("@paymentID", rent.Payment.PaymentID);
+            command.Parameters.AddWithValue("@renteeID", rent.Rentee.MemberID);
+            command.Connection = connection;
+            connection.Open();
+
+            if (command.ExecuteNonQuery() > 0)
+            {
+                command.CommandText = "SELECT @@identity";
+                return Convert.ToInt32(command.ExecuteScalar());
+            }
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return -1;
     }
 
     // method to get rentee from rental record from the database
@@ -149,7 +209,7 @@ public class RentalDB
         return m;
     }
 
-    // method to get rental by rentalIS from the database
+    // method to get rental by rentalID from the database
     public static Rental getRentalbyID(string rentalID)
     {
         Rental rent = new Rental();
@@ -176,7 +236,7 @@ public class RentalDB
         return rent;
     }
 
-    // methof to change sttus of rental in the database
+    // method to change status of rental in the database
     public static int updateRentStatus(string rentalID, string status)
     {
         try
@@ -190,11 +250,132 @@ public class RentalDB
 
             if (command.ExecuteNonQuery() > 0)
                 return 1;
-        } finally
+        }
+        finally
         {
             connection.Close();
         }
         return -1;
+    }
+
+    // method to get number of rentals where member is rentee from the database
+    public static int getNoofRentalAsRentee(string memberID)
+    {
+        int rentNo = 0;
+        try
+        {
+            SqlCommand command = new SqlCommand("SELECT count(*) as noOfRental FROM Rental WHERE renteeID=@memberID");
+            command.Parameters.AddWithValue("@memberID", memberID);
+            command.Connection = connection;
+            connection.Open();
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+                rentNo = Convert.ToInt32(reader["noOfRental"]);
+
+            reader.Close();
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return rentNo;
+    }
+
+    // method to get number of rentals where member is renter from the database
+    public static int getNoofRentalAsRenter(string memberID)
+    {
+        int rentNo = 0;
+        try
+        {
+            SqlCommand command = new SqlCommand("SELECT count(*) as noOfRental FROM Rental R, Item I WHERE R.itemID=I.itemID and I.renterID=@memberID");
+            command.Parameters.AddWithValue("@memberID", memberID);
+            command.Connection = connection;
+            connection.Open();
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+                rentNo = Convert.ToInt32(reader["noOfRental"]);
+
+            reader.Close();
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return rentNo;
+    }
+
+    // method to get rental that has exceeded the due date from the database
+    public static List<Rental> getRentalsThatExceeds(DateTime dueDate)
+    {
+        List<Rental> rentList = new List<Rental>();
+        try
+        {
+            //and returnTime<@time
+            SqlCommand command = new SqlCommand("SELECT * FROM Rental WHERE rentalID not in " +
+                "( SELECT R.rentalID FROM Rental R, Extension E WHERE R.RentalID = E.RentalID GROUP BY R.rentalID, " +
+                "E.status HAVING E.status <> 'Not Granted') and endDate = @date and E.returnTime < @time and status='On-going'");
+
+            command.Parameters.AddWithValue("@date", String.Format("{0:yyyy/MM/dd}", dueDate.Date));
+            command.Parameters.AddWithValue("@time", dueDate.TimeOfDay);
+            command.Connection = connection;
+            connection.Open();
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Rental rent = new Rental();
+                readARental(ref rent, ref reader);
+                rentList.Add(rent);
+            }
+
+            reader.Close();
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return rentList;
+    }
+
+    // method to get rental that has extension that has exceeded the due date from the database
+    public static List<Rental> getRentalsWithExtensionThatExceeds(DateTime dueDate)
+    {
+        List<Rental> rentList = new List<Rental>();
+        try
+        {
+
+            SqlCommand command = new SqlCommand("SELECT * FROM Rental R, Extension E " +
+                "WHERE R.rentalID = E.rentalID and E.extensionID in ( SELECT TOP 1 E1.extensionID FROM Extension E1 " +
+                "WHERE E1.rentalID = R.rentalID and E1.status<>'Not Granted' ORDER BY E1.newEndDate desc) " +
+                " and E.newEndDate = @date and E.newReturnTime < @time  and R.status='On-going'");
+
+            command.Parameters.AddWithValue("@date", dueDate.Date);
+            command.Parameters.AddWithValue("@time", dueDate.TimeOfDay);
+            command.Connection = connection;
+            connection.Open();
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Rental rent = new Rental();
+                readARental(ref rent, ref reader);
+
+                rentList.Add(rent);
+            }
+
+            reader.Close();
+        }
+        finally
+        {
+            connection.Close();
+        }
+        return rentList;
     }
 
     // method to read the column values in the database (through the referenced reader) and assign it to the correct properties of the referenced Rental object 
@@ -228,6 +409,6 @@ public class RentalDB
 
         rent.Item = ItemDB.getItembyID(reader["itemID"].ToString());
 
-        rent.PaymentID = PaymentDB.getPaymentbyID(reader["paymentID"].ToString());
+        rent.Payment = PaymentDB.getPaymentbyID(reader["paymentID"].ToString());
     }
 }

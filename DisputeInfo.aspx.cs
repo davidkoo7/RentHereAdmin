@@ -32,8 +32,24 @@ public partial class DisputeInfo : System.Web.UI.Page
 
             List<Dispute> disputeMembers = new List<Dispute>();
 
-            disputeMembers.Add(DisputeDB.getDisputeybyID(Request.QueryString["disputeID"].ToString()));
+            Dispute dis = DisputeDB.getDisputeybyID(Request.QueryString["disputeID"].ToString());
 
+            if (dis.Status == "Resolved")
+                setChatControls(false);
+            else
+                setChatControls(true);
+
+            disputeMembers.Add(dis);
+
+            Member targetMember = new Member();
+
+            if (dis.SubmittedBy.MemberID != dis.Rental.Rentee.MemberID)
+                targetMember = dis.Rental.Rentee;
+            else
+                targetMember = dis.Rental.Item.Renter;
+
+            btnBanDisputer.Text = "Ban " + dis.SubmittedBy.Name.Substring(0, dis.SubmittedBy.Name.IndexOf(" "));
+            btnBanDisputed.Text = "Ban " + targetMember.Name.Substring(0, targetMember.Name.IndexOf(" "));
 
             rptMemberInfoRedirect.DataSource = disputeMembers;
             rptMemberInfoRedirect.DataBind();
@@ -122,13 +138,71 @@ public partial class DisputeInfo : System.Web.UI.Page
         MessageDisputeDB.addMsgDispute(msgDis);
     }
 
+    protected void btnBanDisputer_Click(object sender, EventArgs e)
+    {
+        Dispute dis = DisputeDB.getDisputeybyID(Request.QueryString["disputeID"].ToString());
+        if (dis.Status == "Resolved")
+        {
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "alertMessage", "alert('Your page has expired since the disputer has closed the case')", true);
+            rptMessages.DataBind();
+            setChatControls(false);
+            txtMsg.Value = "";
+            return;
+        }
+
+        submitMessage("=======" + dis.SubmittedBy.Name + " has been banned, dispute resolved=======", dis);
+
+        MemberDB.updateMemberStatus(dis.SubmittedBy.MemberID, "Banned");
+        DisputeDB.resolveDispute(dis.DisputeID);
+
+        setChatControls(false);
+
+        Response.Redirect(Request.RawUrl);
+    }
+
+    protected void btnBanDisputed_Click(object sender, EventArgs e)
+    {
+        Dispute dis = DisputeDB.getDisputeybyID(Request.QueryString["disputeID"].ToString());
+        if (dis.Status == "Resolved")
+        {
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "alertMessage", "alert('Your page has expired since the disputer has closed the case')", true);
+            rptMessages.DataBind();
+            setChatControls(false);
+            txtMsg.Value = "";
+            return;
+        }
+
+        Member targetMember = new Member();
+
+        if (dis.SubmittedBy.MemberID != dis.Rental.Rentee.MemberID)
+            targetMember = dis.Rental.Rentee;
+        else
+            targetMember = dis.Rental.Item.Renter;
+
+        if (targetMember.Status == "Banned")
+        {
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "alertMessage", "alert('Form resubmission is not allowed')", true);
+            rptMessages.DataBind();
+            return;
+        }
+
+        MemberDB.updateMemberStatus(targetMember.MemberID, "Banned");
+        submitMessage("=======" + targetMember.Name + " has been banned, dispute resolved=======", dis);
+
+        DisputeDB.resolveDispute(dis.DisputeID);
+
+        setChatControls(false);
+
+        Response.Redirect(Request.RawUrl);
+    }
+
     // enables or disables message send button and message box
     private void setChatControls(bool isEnabled)
     {
         btnSend.Enabled = isEnabled;
         txtMsg.Disabled = !isEnabled;
         //btnSubmit.Enabled = isEnabled;
-        //btnBanDisputed.Enabled = isEnabled;
-        //btnBanDisputer.Enabled = isEnabled;
+        btnBanDisputed.Enabled = isEnabled;
+        btnBanDisputer.Enabled = isEnabled;
     }
 }

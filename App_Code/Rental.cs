@@ -21,7 +21,7 @@ public class Rental
     public string PaymentReleaseCode { get; set; }
     public string DepositRetrievalCode { get; set; }
     public Item Item { get; set; }
-    public Payment PaymentID { get; set; }
+    public Payment Payment { get; set; }
     public Member Rentee { get; set; }
 
     // constructor for Rental
@@ -45,7 +45,7 @@ public class Rental
         PaymentReleaseCode = paymentReleaseCode;
         DepositRetrievalCode = depositRetrievalCode;
         Item = itemID;
-        PaymentID = paymentID;
+        Payment = paymentID;
         Rentee = renteeID;
     }
 

@@ -68,7 +68,7 @@
                 <div class="messages">
                     <asp:Repeater ID="rptMessages" runat="server">
                         <ItemTemplate>
-                                    <asp:Label ID="lblMessages" runat="server" Text='<%# retrieveMessage(Convert.ToString(Eval("Member.MemberID")), Convert.ToString(Eval("Staff.StaffID")), Convert.ToString(Eval("reply")), String.Format("{0:dd MMM yy   HH:mm}", Eval("Date")))%>'></asp:Label>
+                            <asp:Label ID="lblMessages" runat="server" Text='<%# retrieveMessage(Convert.ToString(Eval("Member.MemberID")), Convert.ToString(Eval("Staff.StaffID")), Convert.ToString(Eval("reply")), String.Format("{0:dd MMM yy   HH:mm}", Eval("Date")))%>'></asp:Label>
                         </ItemTemplate>
                     </asp:Repeater>
                 </div>
@@ -107,6 +107,8 @@
                             <div class="col-md-12">
                                 <br />
                                 <asp:Button CssClass="btn btn-primary" ID="btnSend" OnClick="btnSend_Click" runat="server" Text="Send" />
+                                <asp:Button ID="btnBanDisputer" class="btn btn-warning btn-sm" runat="server" Text="Ban Disputer" OnClick="btnBanDisputer_Click" OnClientClick="return confirm('You are about to ban the disputer. As the action is irreversible, are you sure?')" />
+                                <asp:Button ID="btnBanDisputed" class="btn btn-warning btn-sm" runat="server" Text="Ban Disputed" OnClick="btnBanDisputed_Click" OnClientClick="return confirm('You are about to ban the disputed. As the action is irreversible, are you sure?')" />
                             </div>
                         </div>
 
@@ -148,5 +150,5 @@
     <script>
         $("#scroll2").scrollTop($("#scroll2")[0].scrollHeight);
 
-	</script>
+    </script>
 </asp:Content>
